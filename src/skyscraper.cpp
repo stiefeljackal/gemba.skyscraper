@@ -963,10 +963,10 @@ void Skyscraper::loadConfig(const QCommandLineParser &parser) {
     settings.endGroup();
 
     // Check for command line scraping module here
-    QStringList scrapers = {"arcadedb",   "cache",          "esgamelist",
-                            "gamebase",   "igdb",           "import",
-                            "mobygames",  "openretro",      "screenscraper",
-                            "thegamesdb", "worldofspectrum"};
+    QStringList scrapers = {"arcadedb",       "cache",         "esgamelist",
+                            "gamebase",       "igdb",          "import",
+                            "mobygames",      "openretro",     "retroachievements",
+                            "screenscraper",  "thegamesdb",    "worldofspectrum"};
     if (parser.isSet("s")) {
         QString _scraper = parser.value("s");
         if (_scraper == "tgdb") {

@@ -1123,10 +1123,10 @@ bool RuntimeCfg::validatePurgeParameters(QString &purgeParam) {
                      resTypes.join(", ").toStdString().c_str());
         }
         // validate m=<scraper>
-        QStringList scrapers = {"arcadedb",       "esgamelist",    "gamebase",
-                                "igdb",           "import",        "mobygames",
-                                "openretro",      "screenscraper", "thegamesdb",
-                                "worldofspectrum"};
+        QStringList scrapers = {"arcadedb",     "esgamelist",        "gamebase",
+                                "igdb",         "import",            "mobygames",
+                                "openretro",    "retroachievements", "screenscraper",
+                                "thegamesdb",   "worldofspectrum"};
         QString moduleParam;
         if (para1.startsWith("m")) {
             moduleParam = para1.split("=")[1];

@@ -39,6 +39,7 @@
 #include "mobygames.h"
 #include "nametools.h"
 #include "openretro.h"
+#include "retroachievements.h"
 #include "screenscraper.h"
 #include "settings.h"
 #include "strtools.h"
@@ -68,6 +69,8 @@ void ScraperWorker::run() {
     bool cacheScraper = false;
     if (config.scraper == "openretro") {
         scraper = new OpenRetro(&config, manager);
+    } else if (config.scraper == "retroachievements") {
+        scraper = new RetroAchievements(&config, manager);
     } else if (config.scraper == "thegamesdb") {
         scraper = new TheGamesDb(&config, manager);
     } else if (config.scraper == "arcadedb") {
