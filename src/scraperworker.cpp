@@ -39,12 +39,15 @@
 #include "mobygames.h"
 #include "nametools.h"
 #include "openretro.h"
-#include "retroachievements.h"
 #include "screenscraper.h"
 #include "settings.h"
 #include "strtools.h"
 #include "thegamesdb.h"
 #include "zxinfodk.h"
+
+#ifdef WITH_RETROACHIEVEMENTS
+#include "retroachievements.h"
+#endif
 
 #include <QDate>
 #include <QRegularExpression>
@@ -69,9 +72,13 @@ void ScraperWorker::run() {
     bool cacheScraper = false;
     if (config.scraper == "openretro") {
         scraper = new OpenRetro(&config, manager);
-    } else if (config.scraper == "retroachievements") {
+    } 
+#ifdef WITH_RETROACHIEVEMENTS
+    else if (config.scraper == "retroachievements") {
         scraper = new RetroAchievements(&config, manager);
-    } else if (config.scraper == "thegamesdb") {
+    }
+#endif
+    else if (config.scraper == "thegamesdb") {
         scraper = new TheGamesDb(&config, manager);
     } else if (config.scraper == "arcadedb") {
         scraper = new ArcadeDB(&config, manager);

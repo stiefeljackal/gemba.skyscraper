@@ -96,6 +96,29 @@ CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 
 include(win32/skyscraper.pro)
 
+# RetroAchievements support (enabled by default)
+!contains(CONFIG, no_retroachievements) {
+    DEFINES += WITH_RETROACHIEVEMENTS
+
+    RCHEEVOS_ROOT = $$PWD/thirdparty/rcheevos
+
+    INCLUDEPATH += $$RCHEEVOS_ROOT/include
+
+    HEADERS += \
+        $$PWD/src/retroachievements.h \
+        $$PWD/src/retroachievementsromhasher.h
+
+    SOURCES += \
+        $$PWD/src/retroachievements.cpp \
+        $$PWD/src/retroachievementsromhasher.cpp \
+        $$files($$RCHEEVOS_ROOT/src/rhash/*.c) \
+        $$RCHEEVOS_ROOT/src/rcheevos/consoleinfo.c
+
+    message(RetroAchievements support enabled)
+} else {
+    message(RetroAchievements support disabled)
+}
+
 HEADERS += \
            src/abstractfrontend.h \
            src/abstractscraper.h \
@@ -143,7 +166,6 @@ HEADERS += \
            src/pegasus.h \
            src/platform.h \
            src/queue.h \
-           src/retroachievements.h \
            src/retroarch.h \
            src/scraperworker.h \
            src/screenscraper.h \
@@ -201,7 +223,6 @@ SOURCES += src/main.cpp \
            src/pegasus.cpp \
            src/platform.cpp \
            src/queue.cpp \
-           src/retroachievements.cpp \
            src/retroarch.cpp \
            src/scraperworker.cpp \
            src/screenscraper.cpp \
