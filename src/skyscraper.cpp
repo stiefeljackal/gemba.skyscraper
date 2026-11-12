@@ -61,7 +61,10 @@ Skyscraper::Skyscraper(const QString &currentDir) {
     config.currentDir = currentDir;
 }
 
-Skyscraper::~Skyscraper() { frontend->deleteLater(); }
+Skyscraper::~Skyscraper()
+{
+    frontend->deleteLater();
+}
 
 void Skyscraper::run() {
     // called after loadConfig()
@@ -870,6 +873,7 @@ void Skyscraper::checkThreads() {
             ncprintf("\n\n");
         }
     }
+
     // All done, now clean up and exit to terminal
     cleanUp();
     emit finished();

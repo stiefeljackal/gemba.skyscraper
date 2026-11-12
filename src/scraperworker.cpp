@@ -30,6 +30,8 @@
 #include "cache.h"
 #include "compositor.h"
 #include "config.h"
+#include "entrysummaryformatter.h"
+#include "entrysummaryformatterfactory.h"
 #include "esgamelist.h"
 #include "gamebase.h"
 #include "gameentry.h"
@@ -72,7 +74,7 @@ void ScraperWorker::run() {
     bool cacheScraper = false;
     if (config.scraper == "openretro") {
         scraper = new OpenRetro(&config, manager);
-    } 
+    }
 #ifdef WITH_RETROACHIEVEMENTS
     else if (config.scraper == "retroachievements") {
         scraper = new RetroAchievements(&config, manager);
@@ -105,6 +107,8 @@ void ScraperWorker::run() {
     // currently only ESGameList
     QObject::connect(scraper, &AbstractScraper::die, scraper,
                      &AbstractScraper::bury);
+    const auto summaryFormatter =
+        EntrySummaryFormatterFactory::create(config.scraper);
 
     if (config.platform == "amigacd32") {
         config.platform = "amiga";
@@ -390,30 +394,7 @@ void ScraperWorker::run() {
         // Make sure we have the correct format of 'ages'
         game.ages = StrTools::conformAges(game.ages);
 
-        QString scrpr = config.scraper;
-        if (scrpr == "worldofspectrum") {
-            scrpr = "zxinfo (formerly: worldofspectrum)";
-        }
-        output.append("Scraper:        " + scrpr + "\n");
-        if (!cacheScraper && config.scraper != "import") {
-            output.append(
-                "From cache:     " +
-                QString(
-                    (fromCache
-                         ? "YES (refresh from source with '--cache refresh')"
-                         : "NO")) +
-                "\n");
-            output.append("Search match:   " + QString::number(searchMatch) +
-                          " %\n");
-            output.append("Compare title:  '\033[1;32m" + compareTitle +
-                          "\033[0m'\n");
-            output.append("Result title:   '\033[1;32m" + game.title +
-                          "\033[0m' (" + game.titleSrc + ")\n");
-        } else {
-            output.append("Title:          '\033[1;32m" + game.title +
-                          "\033[0m' (" + game.titleSrc + ")\n");
-        }
-
+        const QString resultTitle = game.title;
         QString bracketInfo = game.sqrNotes;
         QString parenthesesInfo = game.parNotes;
         if (config.brackets) {
@@ -463,114 +444,17 @@ void ScraperWorker::run() {
                 }
             }
         }
-        output.append("Platform:       '\033[1;32m" + game.platform +
-                      "\033[0m' (" + game.platformSrc + ")\n");
-        output.append("Release Date:   '\033[1;32m");
-        if (game.releaseDate.isEmpty()) {
-            output.append("\033[0m' ()\n");
-        } else {
-            output.append(QDate::fromString(game.releaseDate, "yyyyMMdd")
-                              .toString("yyyy-MM-dd") +
-                          "\033[0m' (" + game.releaseDateSrc + ")\n");
-        }
-        output.append("Developer:      '\033[1;32m" + game.developer +
-                      "\033[0m' (" + game.developerSrc + ")\n");
-        output.append("Publisher:      '\033[1;32m" + game.publisher +
-                      "\033[0m' (" + game.publisherSrc + ")\n");
-        output.append("Players:        '\033[1;32m" + game.players +
-                      "\033[0m' (" + game.playersSrc + ")\n");
-        output.append("Ages:           '\033[1;32m" + game.ages +
-                      (game.ages.toInt() != 0 ? "+" : "") + "\033[0m' (" +
-                      game.agesSrc + ")\n");
-        output.append("Tags:           '\033[1;32m" + game.tags + "\033[0m' (" +
-                      game.tagsSrc + ")\n");
-        output.append("Rating (0-1):   '\033[1;32m" + game.rating +
-                      "\033[0m' (" + game.ratingSrc + ")\n");
-        output.append(
-            "Cover:          " +
-            QString((game.coverSrc.isEmpty() && game.coverData.isNull()
-                         ? "\033[1;31mNO"
-                         : "\033[1;32mYES")) +
-            "\033[0m" +
-            QString((config.cacheCovers || cacheScraper ? "" : " (uncached)")) +
-            " (" + game.coverSrc + ")\n");
-        output.append(
-            "Screenshot:     " +
-            QString(
-                (game.screenshotSrc.isEmpty() && game.screenshotData.isNull()
-                     ? "\033[1;31mNO"
-                     : "\033[1;32mYES")) +
-            "\033[0m" +
-            QString((config.cacheScreenshots || cacheScraper ? ""
-                                                             : " (uncached)")) +
-            " (" + game.screenshotSrc + ")\n");
-        // use wheelSrc here as wheel might be processed/used in marquee during
-        // gl creation avoid signaling NO to the user. wheeldata is set when
-        // found in scraping mode.
-        output.append(
-            "Wheel:          " +
-            QString((game.wheelSrc.isEmpty() && game.wheelData.isEmpty()
-                         ? "\033[1;31mNO"
-                         : "\033[1;32mYES")) +
-            "\033[0m" +
-            QString((config.cacheWheels || cacheScraper ? "" : " (uncached)")) +
-            " (" + game.wheelSrc + ")\n");
-        output.append(
-            "Marquee:        " +
-            QString((game.marqueeSrc.isEmpty() && game.marqueeData.isNull()
-                         ? "\033[1;31mNO"
-                         : "\033[1;32mYES")) +
-            "\033[0m" +
-            QString(
-                (config.cacheMarquees || cacheScraper ? "" : " (uncached)")) +
-            " (" + game.marqueeSrc + ")\n");
-        output.append(
-            "Texture:        " +
-            QString((game.textureSrc.isEmpty() && game.textureData.isNull()
-                         ? "\033[1;31mNO"
-                         : "\033[1;32mYES")) +
-            "\033[0m" +
-            QString(
-                (config.cacheTextures || cacheScraper ? "" : " (uncached)")) +
-            " (" + game.textureSrc + ")\n");
-        if (config.videos) {
-            output.append(
-                "Video:          " +
-                QString((game.videoFormat.isEmpty() ? "\033[1;31mNO"
-                                                    : "\033[1;32mYES")) +
-                "\033[0m" +
-                QString((game.videoSize <= config.videoSizeLimit
-                             ? ""
-                             : " (size exceeded, uncached)")) +
-                " (" + game.videoSrc + ")\n");
-        }
-        if (config.manuals) {
-            output.append(
-                "Manual:         " +
-                QString((game.manualSrc.isEmpty() && game.manualData.isEmpty()
-                             ? "\033[1;31mNO"
-                             : "\033[1;32mYES")) +
-                "\033[0m (" + game.manualSrc + ")\n");
-        }
-        if (config.fanart) {
-            output.append(
-                "Fanart:         " +
-                QString((game.fanartSrc.isEmpty() && game.fanartData.isEmpty()
-                             ? "\033[1;31mNO"
-                             : "\033[1;32mYES")) +
-                "\033[0m (" + game.fanartSrc + ")\n");
-        }
-        if (config.backcovers) {
-            output.append("Backcover:      " +
-                          QString((game.backcoverSrc.isEmpty() &&
-                                           game.backcoverData.isEmpty()
-                                       ? "\033[1;31mNO"
-                                       : "\033[1;32mYES")) +
-                          "\033[0m (" + game.backcoverSrc + ")\n");
-        }
-        output.append("\nDescription: (" + game.descriptionSrc +
-                      ")\n'\033[1;32m" +
-                      game.description.left(config.maxLength) + "\033[0m'\n");
+
+        EntrySummaryContext summaryContext;
+
+        summaryContext.compareTitle = compareTitle;
+        summaryContext.resultTitle = resultTitle;
+        summaryContext.searchMatch = searchMatch;
+        summaryContext.fromCache = fromCache;
+        summaryContext.cacheScraper = cacheScraper;
+
+        summaryFormatter->appendSummary(output, game, config, summaryContext);
+
         if (!cacheOutput.isEmpty()) {
             output.append("\n\033[1;33mCache output:\033[0m\n" + cacheOutput +
                           "\n");

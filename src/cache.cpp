@@ -92,7 +92,7 @@ static inline QStringList txtTypes(bool useGenres = true) {
     QStringList txtTypes = {"title",     "platform", "releasedate", "developer",
                             "publisher", "players",  "ages"};
     txtTypes.append(useGenres ? "genres" : "tags");
-    txtTypes += {"rating", "description"};
+    txtTypes += {"rating", "description", "rahash", "ragameid"};
     return txtTypes;
 }
 
@@ -1738,6 +1738,12 @@ void Cache::addResources(GameEntry &entry, const Settings &config,
     if (entry.cacheId.isEmpty()) {
         return;
     }
+
+    const auto shouldCache = [&entry](const QString &type) {
+        return entry.cacheResourceTypes.isEmpty() ||
+               entry.cacheResourceTypes.contains(type);
+    };
+
     const QString cacheAbsolutePath = cacheDir.path();
     Resource resource;
     resource.cacheId = entry.cacheId;
@@ -1753,11 +1759,13 @@ void Cache::addResources(GameEntry &entry, const Settings &config,
         {"ages", entry.ages},
         {"tags", entry.tags},
         {"rating", entry.rating},
-        {"releasedate", entry.releaseDate}};
+        {"releasedate", entry.releaseDate},
+        {"rahash", entry.raHash},
+        {"ragameid", entry.raGameId}};
 
     for (auto e = txtResources.cbegin(), end = txtResources.cend(); e != end;
          ++e) {
-        if (!e.value().isEmpty()) {
+        if (shouldCache(e.key()) && !e.value().isEmpty()) {
             resource.type = e.key();
             resource.value = e.value();
             addResource(resource, entry, cacheAbsolutePath, config, output);
@@ -1776,7 +1784,7 @@ void Cache::addResources(GameEntry &entry, const Settings &config,
         {"video", !entry.videoData.isEmpty() && entry.videoFormat != ""}};
 
     for (auto const &t : binTypes()) {
-        if (binResources.value(t)) {
+        if (shouldCache(t) && binResources.value(t)) {
             resource.type = t;
             resource.value = t % "s/" % entry.source % "/" % entry.cacheId;
             if (t == "video") {
@@ -2117,6 +2125,10 @@ void Cache::fillBlanks(GameEntry &entry, const QString scraper) {
             } else if (type == "releasedate") {
                 entry.releaseDate = result;
                 entry.releaseDateSrc = source;
+            } else if (type == "rahash") {
+                entry.raHash = result;
+            } else if (type == "ragameid") {
+                entry.raGameId = result;
             }
         }
     }

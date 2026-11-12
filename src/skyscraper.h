@@ -40,6 +40,11 @@
 #include <QList>
 #include <QObject>
 
+#ifdef WITH_RETROACHIEVEMENTS
+class RetroAchievementsRequestScheduler;
+class QThread;
+#endif
+
 class Skyscraper : public QObject {
     Q_OBJECT
 
@@ -107,7 +112,7 @@ private:
 
     QList<QString> readFileListFrom(const QString &filename);
     void validateAbsolutePath(const QString &param, const QString &path);
-
+ 
     QSharedPointer<AbstractFrontend> frontend;
     QSharedPointer<Cache> cache;
     QList<GameEntry> gameEntries;

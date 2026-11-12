@@ -30,6 +30,7 @@
 #include <QDomNamedNodeMap>
 #include <QFlags>
 #include <QList>
+#include <QSet>
 #include <QMap>
 #include <QPair>
 #include <QString>
@@ -168,6 +169,11 @@ public:
     QByteArray backcoverData = QByteArray();
     QString backcoverFile = "";
     QString backcoverSrc = "";
+    QSet<QString> cacheResourceTypes;
+
+    // RetroAchievements (RA) identification
+    QString raHash = "";
+    QString raGameId = "";
 
     // internal
     int searchMatch = 0;

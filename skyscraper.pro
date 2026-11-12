@@ -104,15 +104,27 @@ include(win32/skyscraper.pro)
 
     INCLUDEPATH += $$RCHEEVOS_ROOT/include
 
+    LIBS += -larchive
+
     HEADERS += \
         $$PWD/src/retroachievements.h \
-        $$PWD/src/retroachievementsromhasher.h
+        $$PWD/src/retroachievementsentrysummaryformatter.h \
+        $$PWD/src/retroachievementsromhasher.h \
+        $$PWD/src/retroachievementsrequestscheduler.h \
+        $$PWD/src/retroachievementsruntime.h
 
     SOURCES += \
         $$PWD/src/retroachievements.cpp \
+        $$PWD/src/retroachievementsentrysummaryformatter.cpp \
         $$PWD/src/retroachievementsromhasher.cpp \
+        $$PWD/src/retroachievementsrequestscheduler.cpp \
+        $$PWD/src/retroachievementsruntime.cpp \
         $$files($$RCHEEVOS_ROOT/src/rhash/*.c) \
-        $$RCHEEVOS_ROOT/src/rcheevos/consoleinfo.c
+        $$files($$RCHEEVOS_ROOT/src/rcheevos/*.c) \
+        $$RCHEEVOS_ROOT/src/rapi/rc_api_common.c \
+        $$RCHEEVOS_ROOT/src/rapi/rc_api_runtime.c \
+        $$RCHEEVOS_ROOT/src/rc_util.c \
+        $$RCHEEVOS_ROOT/src/rc_compat.c \
 
     message(RetroAchievements support enabled)
 } else {
@@ -130,7 +142,10 @@ HEADERS += \
            src/compositor.h \
            src/config.h \
            src/crc32.h \
+           src/defaultentrysummaryformatter.h \
            src/emulationstation.h \
+           src/entrysummaryformatter.h \
+           src/entrysummaryformatterfactory.h \
            src/esde.h \
            src/esgamelist.h \
            src/fxbalance.h \
@@ -187,7 +202,10 @@ SOURCES += src/main.cpp \
            src/compositor.cpp \
            src/config.cpp \
            src/crc32.cpp \
+           src/defaultentrysummaryformatter.cpp \
            src/emulationstation.cpp \
+           src/entrysummaryformatter.cpp \
+           src/entrysummaryformatterfactory.cpp \
            src/esde.cpp \
            src/esgamelist.cpp \
            src/fxbalance.cpp \
